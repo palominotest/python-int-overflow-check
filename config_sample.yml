@@ -1,0 +1,45 @@
+# use the long name version of the options with dashes converted to underscores
+
+use_dbs: [pdbtest_db1, pdbtest_db2]
+ignore_dbs: [pdbtest_db1]
+exclude_columns:
+    pdbtest_db2.tb1: [id]
+    pdbtest_db2.tb2: [tinyintcol, smallintcol]
+warning: 99
+critical: 99
+threads: 10
+row_count_max_ratio: 50
+display_row_count_max_ratio_columns: True
+hostname: localhost
+user: sandbox
+password: sandbox
+
+# logging
+# =======
+# logging configuration
+logging:
+    version: 1
+    disable_existing_loggers: False
+    formatters:
+        simple:
+            format: '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+        console:
+            format: '[%(asctime)s] %(message)s'
+    handlers:
+        console:
+            level: 'INFO'
+            formatter: console
+            class: logging.StreamHandler
+        new_file:
+            formatter: simple
+            level: DEBUG
+            class: logging.FileHandler
+            filename: debug.log
+            mode: w
+            encoding: utf_8
+            delay: True
+    loggers:
+        __main__:
+            handlers: [new_file]
+        pdb_check_maxvalue:
+            handlers: [new_file]
