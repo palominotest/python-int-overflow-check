@@ -7,7 +7,63 @@ Python Integer Overflow MySQL Check(Check Max Value)
 
 Install Requirements
 -------------------------------
-`pip install -r requirements.txt`
+
+Install MySQL-python required packages:
+
+For Ubuntu:
+```
+sudo apt-get install python-dev libmysqlclient-dev
+```
+
+It is recommended that virtual environment is used when using the tool rather than updating system packages.
+
+Install virtualenv if you don't have it yet:
+
+For Ubuntu:
+```
+sudo apt-get install python-virtualenv
+```
+
+Create virtual environment:
+```
+$ virtualenv --no-site-packages ~/myenv
+```
+
+Activate virtual environment and install requirements:
+```
+$ source ~/myenv/bin/activate
+(myenv)$ pip install -r requirements.txt
+```
+At this point you can now run pdb_check_maxvalue.py script.
+
+Deactivate virtual environment when done working with it:
+```
+(myenv)$ deactivate
+```
+
+Running the Script
+------------------
+
+To run a pdb_check_maxvalue.py in a virtual environment, you can either:
+
+    * Activate virtual environment and run script with Python:
+
+        $ source ~/myenv/bin/activate
+        (myenv)$ python pdb_check_maxvalue.py <args>
+        (myenv)$ deactivate
+        $
+
+        or if pdb_check_maxvalue.py's first line is: #!/usr/bin/env python
+
+        $ source ~/myenv/bin/activate
+        (myenv)$ ./pdb_check_maxvalue.py <args>
+        (myenv)$ deactivate
+        $
+
+    * Run using full path of virtual environment's version of Python:
+
+        $ ~/myenv/bin/python pdb_check_maxvalue.py <args>
+
 
 Usage
 -----
