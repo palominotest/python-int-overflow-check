@@ -41,6 +41,57 @@ Deactivate virtual environment when done working with it:
 (myenv)$ deactivate
 ```
 
+For CentOS (tested on CentOS 6 so far):
+```
+yum install mysql-devel
+```
+If you already have a version of python >2.7 installed somewhere, you can skip this step.  Install python version 2.7:
+
+```
+cd /tmp 
+wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2 
+tar xf Python-2.7.3.tar.bz2 
+cd Python-2.7.3 
+./configure --prefix=/usr/local 
+make 
+make altinstall
+```
+You may need sudo for "make altinstall" depending on what user you are running it as.
+
+See if you have python-virtualenv available in your setup:
+```
+yum search python-virtualenv
+```
+If you do, run 
+```
+yum install python-virtualenv
+```
+Otherwise, you may need to add the EPEL repo as shown here: http://www.rackspace.com/knowledge_center/article/installing-rhel-epel-repo-on-centos-5x-or-6x
+
+Which is:
+
+For CentOS 5:
+```
+wget http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
+wget http://rpms.famillecollet.com/enterprise/remi-release-5.rpm
+sudo rpm -Uvh remi-release-5*.rpm epel-release-5*.rpm
+```
+
+For CentOS 6:
+```
+wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+sudo rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+```
+Then edit /etc/yum.repos.d/remi.repo and set enabled=1 in the [remi] section.
+You should then be able to yum install python-virtualenv
+
+Install your virtual environment:
+
+```
+virtualenv -p /usr/local/bin/python2.7 --no-site-packages ~/venv/myenv
+```
+
 Running the Script
 ------------------
 
