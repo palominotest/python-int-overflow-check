@@ -44,6 +44,7 @@ Deactivate virtual environment when done working with it:
 For CentOS (tested on CentOS 6 so far):
 ```
 yum install mysql-devel
+yum groupinstall "Development tools"
 ```
 If you already have a version of python >2.7 installed somewhere, you can skip this step.  Install python version 2.7:
 
