@@ -586,7 +586,7 @@ class CheckMaxValue(Plugin):
                 pprint.pformat(warning_columns)))
 
             if len(critical_columns) > 0:
-                columns = critical_columns + warning_columns
+                columns = sorted(critical_columns) + sorted(warning_columns)
                 status = pynagios.CRITICAL
             elif len(warning_columns) > 0:
                 columns = warning_columns
