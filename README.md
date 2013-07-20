@@ -41,7 +41,7 @@ Deactivate virtual environment when done working with it:
 (myenv)$ deactivate
 ```
 
-For CentOS (tested on CentOS 6 so far):
+For CentOS (tested on CentOS 5 and 6):
 ```
 yum install mysql-devel
 yum groupinstall "Development tools"
