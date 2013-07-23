@@ -13,6 +13,11 @@ display_row_count_max_ratio_columns: True
 hostname: localhost
 user: sandbox
 password: sandbox
+results_host: localhost
+results_database: int_overflow_check
+results_user: sandbox
+results_password: sandbox
+results_port: 3306
 
 # logging
 # =======

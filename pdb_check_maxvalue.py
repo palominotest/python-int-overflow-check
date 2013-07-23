@@ -16,6 +16,7 @@ import threading
 import time
 
 import MySQLdb
+import datetime
 import pynagios
 from pynagios import Plugin, Response, make_option
 import yaml
@@ -33,6 +34,10 @@ log.setLevel(logging.DEBUG)
 log.addHandler(NullHandler())
 
 pp = pprint.pprint
+
+
+class Error(Exception):
+    pass
 
 
 def fetchall(conn, query, args=None):
@@ -325,6 +330,37 @@ class CheckMaxValue(Plugin):
         help='In separate section, display columns containing high values compared to maximum for the column datatype, but number of rows is less than the value of --row-count-max-ratio.'
     )
 
+
+    results_host = make_option(
+        '--results-host',
+        default=None,
+        help='Results database hostname.'
+    )
+
+    results_database = make_option(
+        '--results-database',
+        default=None,
+        help='Results database name.'
+    )
+
+    results_user = make_option(
+        '--results-user',
+        default=None,
+        help='Results database username.'
+    )
+
+    results_password = make_option(
+        '--results-password',
+        default=None,
+        help='Results database password.'
+    )
+
+    results_port = make_option(
+        '--results-port',
+        default=None,
+        help='Results database port.'
+    )
+
     def get_options_from_config_file(self):
         """Returns options from YAML file."""
         if self.options.config:
@@ -360,6 +396,17 @@ class CheckMaxValue(Plugin):
             options['row_count_max_ratio'] = self.options.row_count_max_ratio
         if self.options.display_row_count_max_ratio_columns:
             options['display_row_count_max_ratio_columns'] = self.options.display_row_count_max_ratio_columns
+
+        if self.options.results_host:
+            options['results_host'] = self.options.results_host
+        if self.options.results_database:
+            options['results_database'] = self.options.results_database
+        if self.options.results_user:
+            options['results_user'] = self.options.results_user
+        if self.options.results_password:
+            options['results_password'] = self.options.results_password
+        if self.options.results_port:
+            options['results_port'] = self.options.results_port
 
         if additional_options:
             options.update(additional_options)
@@ -522,6 +569,31 @@ class CheckMaxValue(Plugin):
             self.merge_options()
             self.configure_logging()
 
+            merged_options = self.merged_options
+            hostname = ''
+            if 'hostname' in merged_options and merged_options['hostname']:
+                hostname = merged_options['hostname']
+            self.results_db_conn_opts = {}
+
+            if 'results_host' in merged_options and merged_options['results_host']:
+                self.results_db_conn_opts['host'] = merged_options['results_host']
+
+            if 'results_port' in merged_options and merged_options['results_port']:
+                self.results_db_conn_opts['port'] = merged_options['results_port']
+
+            if 'results_user' in merged_options and merged_options['results_user']:
+                self.results_db_conn_opts['user'] = merged_options['results_user']
+
+            if 'results_password' in merged_options and merged_options['results_password']:
+                self.results_db_conn_opts['passwd'] = merged_options['results_password']
+
+            if 'results_database' in merged_options and merged_options['results_database']:
+                self.results_db_conn_opts['db'] = merged_options['results_database']
+
+            if self.results_db_conn_opts:
+                if not ('db' in self.results_db_conn_opts and self.results_db_conn_opts['db']):
+                    raise Error('results_database is required.')
+
             log.debug('Check started with the following options:\n%s' % (
                 pprint.pformat(self.merged_options),))
 
@@ -606,6 +678,41 @@ class CheckMaxValue(Plugin):
                         col.get('overflow_percentage')) for col in columns)
                 msg = '\n' + msg
 
+                ##############################################################
+                # store critical/warning columns in db
+                ##############################################################
+                if self.results_db_conn_opts:
+                    conn = MySQLdb.connect(**self.results_db_conn_opts)
+                    with conn as cursor:
+                        sql = (
+                            "INSERT INTO int_overflow_check_results("
+                            "  hostname, dbname, table_name, column_name, "
+                            "  max_size, percentage, reason, timestamp) "
+                            "VALUE (%s, %s, %s, %s, %s, %s, %s, %s)")
+
+                        for col in critical_columns:
+                            cursor.execute(
+                                sql,
+                                (
+                                    hostname, col.get('schema'),
+                                    col.get('table'),
+                                    col.get('column_name'),
+                                    col.get('max_value'),
+                                    col.get('overflow_percentage'),
+                                    'critical', datetime.datetime.now()))
+
+                        for col in warning_columns:
+                            cursor.execute(
+                                sql,
+                                (
+                                    hostname, col.get('schema'),
+                                    col.get('table'),
+                                    col.get('column_name'),
+                                    col.get('max_value'),
+                                    col.get('overflow_percentage'),
+                                    'warning', datetime.datetime.now()))
+
+
             row_count_max_ratio = self.merged_options.get('row_count_max_ratio', 0)
             if investigate_columns:
                 log.info('Investigate columns:\n%s' % (pprint.pformat(
@@ -623,6 +730,30 @@ class CheckMaxValue(Plugin):
                             col.get('max_value'),
                             col.get('overflow_percentage')) for col in investigate_columns))
                     )
+
+                ##############################################################
+                # store investigate columns in db
+                ##############################################################
+                if self.results_db_conn_opts:
+                    conn = MySQLdb.connect(**self.results_db_conn_opts)
+                    with conn as cursor:
+                        sql = (
+                            "INSERT INTO int_overflow_check_results("
+                            "  hostname, dbname, table_name, column_name, "
+                            "  max_size, percentage, reason, timestamp) "
+                            "VALUE (%s, %s, %s, %s, %s, %s, %s, %s)")
+
+                        for col in investigate_columns:
+                            cursor.execute(
+                                sql,
+                                (
+                                    hostname, col.get('schema'),
+                                    col.get('table'),
+                                    col.get('column_name'),
+                                    col.get('max_value'),
+                                    col.get('overflow_percentage'),
+                                    'investigate', datetime.datetime.now()))
+
 
             log.info('status: %s\n\nmsg:\n%s' % (status, msg))
 

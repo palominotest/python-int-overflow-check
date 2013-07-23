@@ -49,12 +49,12 @@ yum groupinstall "Development tools"
 If you already have a version of python >2.7 installed somewhere, you can skip this step.  Install python version 2.7:
 
 ```
-cd /tmp 
-wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2 
-tar xf Python-2.7.3.tar.bz2 
-cd Python-2.7.3 
-./configure --prefix=/usr/local 
-make 
+cd /tmp
+wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2
+tar xf Python-2.7.3.tar.bz2
+cd Python-2.7.3
+./configure --prefix=/usr/local
+make
 make altinstall
 ```
 You may need sudo for "make altinstall" depending on what user you are running it as.
@@ -63,7 +63,7 @@ See if you have python-virtualenv available in your setup:
 ```
 yum search python-virtualenv
 ```
-If you do, run 
+If you do, run
 ```
 yum install python-virtualenv
 ```
@@ -128,29 +128,39 @@ Sample Usage:
 
 ```
 Options:
-  -e EXCLUDE_COLUMNS, --exclude-columns=EXCLUDE_COLUMNS
-                        Specify columns to exclude in the following format:
-                        schema1.table1=col1,col2,colN;schemaN.tableN=colN;...
+  -d USE_DBS, --use-dbs=USE_DBS
+                        A comma-separated list of db names to be inspected
+  -P PORT, --port=PORT  The port to be used
+  --results-database=RESULTS_DATABASE
+                        Results database name.
+  --row-count-max-ratio=ROW_COUNT_MAX_RATIO
+                        If table row count is less than this value, exclude
+                        this column from display.
+  --results-user=RESULTS_USER
+                        Results database username.
+  --results-password=RESULTS_PASSWORD
+                        Results database password.
   --display-row-count-max-ratio-columns
                         In separate section, display columns containing high
                         values compared to maximum for the column datatype,
                         but number of rows is less than the value of --row-
                         count-max-ratio.
-  -i IGNORE_DBS, --ignore-dbs=IGNORE_DBS
-                        A comma-separated list of db names to be ignored
-  -d USE_DBS, --use-dbs=USE_DBS
-                        A comma-separated list of db names to be inspected
-  -P PORT, --port=PORT  The port to be used
+  --results-port=RESULTS_PORT
+                        Results database port.
   -T THREADS, --threads=THREADS
                         Number of threads to spawn
   -u USER, --user=USER  Database user
-  --row-count-max-ratio=ROW_COUNT_MAX_RATIO
-                        If table row count is less than this value, exclude
-                        this column from display.
   -p PASSWORD, --password=PASSWORD
                         Database password
+  -e EXCLUDE_COLUMNS, --exclude-columns=EXCLUDE_COLUMNS
+                        Specify columns to exclude in the following format:
+                        schema1.table1=col1,col2,colN;schemaN.tableN=colN;...
+  -i IGNORE_DBS, --ignore-dbs=IGNORE_DBS
+                        A comma-separated list of db names to be ignored
   -C CONFIG, --config=CONFIG
                         Configuration filename
+  --results-host=RESULTS_HOST
+                        Results database hostname.
   -v, --verbose
   -H HOSTNAME, --hostname=HOSTNAME
   -w WARNING, --warning=WARNING
@@ -160,6 +170,22 @@ Options:
 ```
 
   *When not in use, the Warning and Critical parameters are set to 100.*
+
+To be able to store results in a database, create a table on the target database that will hold the results using the following statement:
+```
+CREATE TABLE `int_overflow_check_results` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostname` varchar(255) DEFAULT NULL,
+  `dbname` varchar(255) DEFAULT NULL,
+  `table_name` varchar(255) DEFAULT NULL,
+  `column_name` varchar(255) DEFAULT NULL,
+  `max_size` bigint(20) unsigned DEFAULT NULL,
+  `percentage` float DEFAULT NULL,
+  `reason` text,
+  `timestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+```
 
 
 Testing
