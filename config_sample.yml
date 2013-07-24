@@ -18,6 +18,8 @@ results_database: int_overflow_check
 results_user: sandbox
 results_password: sandbox
 results_port: 3306
+primary_keys: False
+secondary_keys: False
 
 # logging
 # =======

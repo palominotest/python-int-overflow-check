@@ -361,6 +361,20 @@ class CheckMaxValue(Plugin):
         help='Results database port.'
     )
 
+    primary_keys = make_option(
+        '--primary-keys',
+        action='store_true',
+        help='Only primary keys are searched.',
+        default=False
+    )
+
+    secondary_keys = make_option(
+        '--secondary-keys',
+        action='store_true',
+        help='Only secondary keys are searched.',
+        default=False
+    )
+
     def get_options_from_config_file(self):
         """Returns options from YAML file."""
         if self.options.config:
@@ -407,6 +421,9 @@ class CheckMaxValue(Plugin):
             options['results_password'] = self.options.results_password
         if self.options.results_port:
             options['results_port'] = self.options.results_port
+
+        options['primary_keys'] = self.options.primary_keys
+        options['secondary_keys'] = self.options.secondary_keys
 
         if additional_options:
             options.update(additional_options)
@@ -477,10 +494,12 @@ class CheckMaxValue(Plugin):
         query = """
             SELECT
                 c.TABLE_SCHEMA, c.TABLE_NAME, c.COLUMN_NAME, c.COLUMN_TYPE,
-                t.TABLE_ROWS
+                t.TABLE_ROWS, c.COLUMN_KEY, s.SEQ_IN_INDEX
             FROM INFORMATION_SCHEMA.COLUMNS c
             LEFT JOIN INFORMATION_SCHEMA.TABLES t
             ON c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME
+            LEFT JOIN INFORMATION_SCHEMA.STATISTICS s
+            ON c.TABLE_SCHEMA = s.TABLE_SCHEMA AND c.TABLE_NAME = s.TABLE_NAME AND c.COLUMN_NAME = s.COLUMN_NAME
             WHERE c.COLUMN_TYPE LIKE '%int%'
         """
 
@@ -521,6 +540,10 @@ class CheckMaxValue(Plugin):
                 column = row[2]
                 column_type = row[3]
                 row_count = row[4]
+                column_key = row[5]
+                if column_key is not None:
+                    column_key = column_key.strip().lower()
+                seq_in_index = row[6]
 
                 schema_table = '%s.%s' % (schema, table)
                 if (
@@ -535,19 +558,37 @@ class CheckMaxValue(Plugin):
 
                     pass
                 else:
-                    if schema_table in schema_tables:
-                        schema_tables[schema_table]['columns'].append(
-                            dict(
-                                column_name=column,
-                                column_type=column_type))
-                    else:
-                        schema_tables[schema_table] = dict(
-                            schema=schema,
-                            table=table,
-                            row_count=row_count,
-                            columns=[dict(
-                                column_name=column,
-                                column_type=column_type)])
+                    include_column = False
+
+                    if merged_options['primary_keys']:
+                        if column_key and column_key == 'pri':
+                            include_column = True
+
+                    if merged_options['secondary_keys']:
+                        if (
+                                column_key and column_key != 'pri' and
+                                seq_in_index and seq_in_index == 1):
+                            include_column = True
+
+                    if (
+                            (not merged_options['primary_keys']) and
+                            (not merged_options['secondary_keys'])):
+                        include_column = True
+
+                    if include_column:
+                        if schema_table in schema_tables:
+                            schema_tables[schema_table]['columns'].append(
+                                dict(
+                                    column_name=column,
+                                    column_type=column_type))
+                        else:
+                            schema_tables[schema_table] = dict(
+                                schema=schema,
+                                table=table,
+                                row_count=row_count,
+                                columns=[dict(
+                                    column_name=column,
+                                    column_type=column_type)])
 
             # end for
         finally:
