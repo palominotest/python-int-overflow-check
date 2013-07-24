@@ -130,9 +130,12 @@ Sample Usage:
 Options:
   -d USE_DBS, --use-dbs=USE_DBS
                         A comma-separated list of db names to be inspected
+  --results-host=RESULTS_HOST
+                        Results database hostname.
   -P PORT, --port=PORT  The port to be used
   --results-database=RESULTS_DATABASE
                         Results database name.
+  --secondary-keys      Only secondary keys are searched.
   --row-count-max-ratio=ROW_COUNT_MAX_RATIO
                         If table row count is less than this value, exclude
                         this column from display.
@@ -159,14 +162,14 @@ Options:
                         A comma-separated list of db names to be ignored
   -C CONFIG, --config=CONFIG
                         Configuration filename
-  --results-host=RESULTS_HOST
-                        Results database hostname.
+  --primary-keys        Only primary keys are searched.
   -v, --verbose
   -H HOSTNAME, --hostname=HOSTNAME
   -w WARNING, --warning=WARNING
   -c CRITICAL, --critical=CRITICAL
   -t TIMEOUT, --timeout=TIMEOUT
   -h, --help            show this help message and exit
+
 ```
 
   *When not in use, the Warning and Critical parameters are set to 100.*
