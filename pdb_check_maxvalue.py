@@ -194,7 +194,7 @@ class TableProcessor(threading.Thread):
                 investigate_column = dict(
                     schema=schema,
                     table=table,
-                    colum_name=column_name,
+                    column_name=column_name,
                     column_type=column_type,
                     max_value=max_int,
                     overflow_percentage=overflow_percentage,
