@@ -361,17 +361,17 @@ class CheckMaxValue(Plugin):
         help='Results database port.'
     )
 
-    primary_keys = make_option(
-        '--primary-keys',
+    scan_all_columns = make_option(
+        '--scan-all-columns',
         action='store_true',
-        help='Only primary keys are searched.',
+        help='All columns are searched.',
         default=False
     )
 
     secondary_keys = make_option(
         '--secondary-keys',
         action='store_true',
-        help='Only secondary keys are searched.',
+        help='Secondary keys are also searched.',
         default=False
     )
 
@@ -422,7 +422,7 @@ class CheckMaxValue(Plugin):
         if self.options.results_port:
             options['results_port'] = self.options.results_port
 
-        options['primary_keys'] = self.options.primary_keys
+        options['scan_all_columns'] = self.options.scan_all_columns
         options['secondary_keys'] = self.options.secondary_keys
 
         if additional_options:
@@ -545,6 +545,9 @@ class CheckMaxValue(Plugin):
                     column_key = column_key.strip().lower()
                 seq_in_index = row[6]
 
+                scan_secondary_keys = merged_options['secondary_keys']
+                scan_all_columns = merged_options['scan_all_columns']
+
                 schema_table = '%s.%s' % (schema, table)
                 if (
                         exclude_columns and
@@ -560,19 +563,21 @@ class CheckMaxValue(Plugin):
                 else:
                     include_column = False
 
-                    if merged_options['primary_keys']:
-                        if column_key and column_key == 'pri':
-                            include_column = True
+                    if column_key and column_key == 'pri':
+                        # always include primary keys
+                        include_column = True
 
-                    if merged_options['secondary_keys']:
+                    if scan_secondary_keys:
                         if (
                                 column_key and column_key != 'pri' and
                                 seq_in_index and seq_in_index == 1):
                             include_column = True
 
-                    if (
-                            (not merged_options['primary_keys']) and
-                            (not merged_options['secondary_keys'])):
+                    # if (
+                    #         (not merged_options['primary_keys']) and
+                    #         (not merged_options['secondary_keys'])):
+                    #     include_column = True
+                    if scan_all_columns:
                         include_column = True
 
                     if include_column:

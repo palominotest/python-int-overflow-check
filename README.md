@@ -135,7 +135,8 @@ Options:
   -P PORT, --port=PORT  The port to be used
   --results-database=RESULTS_DATABASE
                         Results database name.
-  --secondary-keys      Only secondary keys are searched.
+  --secondary-keys      Secondary keys are also searched.
+  --scan-all-columns    All columns are searched.
   --row-count-max-ratio=ROW_COUNT_MAX_RATIO
                         If table row count is less than this value, exclude
                         this column from display.
@@ -162,13 +163,13 @@ Options:
                         A comma-separated list of db names to be ignored
   -C CONFIG, --config=CONFIG
                         Configuration filename
-  --primary-keys        Only primary keys are searched.
   -v, --verbose
   -H HOSTNAME, --hostname=HOSTNAME
   -w WARNING, --warning=WARNING
   -c CRITICAL, --critical=CRITICAL
   -t TIMEOUT, --timeout=TIMEOUT
   -h, --help            show this help message and exit
+
 
 ```
 
