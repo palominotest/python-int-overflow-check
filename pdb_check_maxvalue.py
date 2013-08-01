@@ -526,6 +526,7 @@ class CheckMaxValue(Plugin):
             log.debug('%s' % (query,))
             rows = fetchall(conn, query)
             log.debug('len(rows)=%s' % (len(rows),))
+            log.debug(pprint.pformat(rows))
 
             if 'exclude_columns' in self.merged_options:
                 exclude_columns = self.merged_options['exclude_columns']
@@ -533,6 +534,7 @@ class CheckMaxValue(Plugin):
                 exclude_columns = None
 
             schema_tables = {}
+            added_columns = []
 
             for row in rows:
                 schema = row[0]
@@ -579,6 +581,14 @@ class CheckMaxValue(Plugin):
                     #     include_column = True
                     if scan_all_columns:
                         include_column = True
+
+                    if include_column:
+                        column_to_add = '%s.%s.%s' % (schema, table, column)
+                        if column_to_add in added_columns:
+                            # prevent duplicates
+                            include_column = False
+                        else:
+                            added_columns.append(column_to_add)
 
                     if include_column:
                         if schema_table in schema_tables:
