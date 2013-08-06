@@ -1,0 +1,27 @@
+[loggers]
+keys=root,__main__
+
+[handlers]
+keys=new_file
+
+[formatters]
+keys=simple
+
+[formatter_simple]
+format=[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s
+
+[handler_new_file]
+formatter=simple
+level=DEBUG
+class=FileHandler
+args=('debug.log', 'w', 'utf_8')
+
+[logger_root]
+level=NOTSET
+handlers=new_file
+
+[logger___main__]
+level=DEBUG
+handlers=new_file
+propagate=0
+qualname=__main__

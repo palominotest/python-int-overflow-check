@@ -1,4 +1,2 @@
-MySQL-python==1.2.4
-pynagios==0.1.1
-PyYAML==3.10
-logutils==0.3.3
+argparse
+MySQL-python

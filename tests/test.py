@@ -13,8 +13,8 @@ class PdbCheckMaxValueTest(unittest.TestCase):
         # Append module directory to path so we can import the plugin and create db connection
         ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         sys.path.append(ROOT_DIR)
-        from pdb_check_maxvalue import CheckMaxValue
-        self.CheckMaxValue = CheckMaxValue
+        from int_overflow_check.pdb_check_maxvalue import main
+        self.main = main
         
         # Connect to MySQL, Make sure that the default MySQL user has CREATE grant
         self.db = MySQLdb.connect()
@@ -35,23 +35,35 @@ class PdbCheckMaxValueTest(unittest.TestCase):
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
         ''')
         cursor.execute('LOCK TABLES `tbl_test` WRITE;')
-        cursor.execute('INSERT INTO `tbl_test` VALUES (1147483647,60,8442,31314242424242442,3535353,4294967295);')
+        cursor.execute(
+            'INSERT INTO `tbl_test` '
+            'VALUES '
+            '    (1147483647,60,8442,31314242424242442,3535353,4294967295);')
         cursor.execute('UNLOCK TABLES;')
         
     def test_check_max_value_ok(self):
-        check_max_value = self.CheckMaxValue(args=shlex.split('-d pdbmaxcheck_test --row-count-max-ratio 0.01 --display-row-count-max-ratio-columns'))
-        check_max_value.check()
-        return self.assertEqual(check_max_value.exit_code, 0)
+        exit_code = self.main(
+            shlex.split(
+                '-d pdbmaxcheck_test '
+                '--row-count-max-ratio 0 '
+                '--display-row-count-max-ratio-columns'))
+        return self.assertEqual(exit_code, 0)
         
     def test_check_max_value_warning(self):
-        check_max_value = self.CheckMaxValue(args=shlex.split('-d pdbmaxcheck_test --warning 25 --critical 100 --row-count-max-ratio 0.01 --display-row-count-max-ratio-columns'))
-        check_max_value.check()
-        return self.assertEqual(check_max_value.exit_code, 1)
+        exit_code = self.main(
+            shlex.split(
+                '-d pdbmaxcheck_test --warning 25 --critical 100 '
+                '--row-count-max-ratio 0 '
+                '--display-row-count-max-ratio-columns'))
+        return self.assertEqual(exit_code, 1)
         
     def test_check_max_value_critical(self):
-        check_max_value = self.CheckMaxValue(args=shlex.split('-d pdbmaxcheck_test --warning 20 --critical 25 --row-count-max-ratio 0.01 --display-row-count-max-ratio-columns'))
-        check_max_value.check()
-        return self.assertEqual(check_max_value.exit_code, 2)
+        exit_code = self.main(
+            shlex.split(
+                '-d pdbmaxcheck_test --warning 20 --critical 25 '
+                '--row-count-max-ratio 0 '
+                '--display-row-count-max-ratio-columns'))
+        return self.assertEqual(exit_code, 2)
 
     def tearDown(self):
         # Drop Test DATABASE
