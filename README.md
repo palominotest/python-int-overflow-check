@@ -120,57 +120,79 @@ To run a pdb_check_maxvalue.py in a virtual environment, you can either:
 Usage
 -----
 
-Usage: pdb_check_maxvalue.py \[options\]
+Usage: pdb_check_maxvalue.py [-h] [-H HOSTNAME] [-P PORT] [-u USER]
+                             [-p PASSWORD] [-d USE_DBS] [-i IGNORE_DBS]
+                             [-T THREADS] [-e EXCLUDE_COLUMNS]
+                             [--row-count-max-ratio ROW_COUNT_MAX_RATIO]
+                             [--display-row-count-max-ratio-columns]
+                             [--results-host RESULTS_HOST]
+                             [--results-database RESULTS_DATABASE]
+                             [--results-user RESULTS_USER]
+                             [--results-password RESULTS_PASSWORD]
+                             [--results-port RESULTS_PORT]
+                             [--scan-all-columns] [--secondary-keys]
+                             [-w WARNING] [-c CRITICAL] [-L LOGGING_CONFIG]
+
+Check for values in integer-type columns that had reached near maximum value.
 
 Sample Usage:
   `pdb_check_maxvalue.py -u root -p password -d db1,db2,db3 --critical 75 --warning 50`
-  `pdb_check_maxvalue.py -C ./config_sample.yml`
+
+To read options from file:
+  `pdb_check_maxvalue.py @args.sample.txt`
 
 ```
-Options:
-  -d USE_DBS, --use-dbs=USE_DBS
-                        A comma-separated list of db names to be inspected
-  --results-host=RESULTS_HOST
-                        Results database hostname.
-  -P PORT, --port=PORT  The port to be used
-  --results-database=RESULTS_DATABASE
-                        Results database name.
-  --secondary-keys      Secondary keys are also searched.
-  --scan-all-columns    All columns are searched.
-  --row-count-max-ratio=ROW_COUNT_MAX_RATIO
-                        If table row count is less than this value, exclude
-                        this column from display.
-  --results-user=RESULTS_USER
-                        Results database username.
-  --results-password=RESULTS_PASSWORD
-                        Results database password.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOSTNAME, --hostname HOSTNAME
+                        Name of host to connect to. (default: None)
+  -P PORT, --port PORT  The port to be used when connecting to host. (default:
+                        3306)
+  -u USER, --user USER  The username to be used when connecting to host.
+                        (default: None)
+  -p PASSWORD, --password PASSWORD
+                        The password to be used when connecting to host.
+                        (default: None)
+  -d USE_DBS, --use-dbs USE_DBS
+                        A comma-separated list of db names to be inspected.
+                        (default: None)
+  -i IGNORE_DBS, --ignore-dbs IGNORE_DBS
+                        A comma-separated list of db names to be ignored.
+                        (default: None)
+  -T THREADS, --threads THREADS
+                        Number of threads to spawn. (default: 2)
+  -e EXCLUDE_COLUMNS, --exclude-columns EXCLUDE_COLUMNS
+                        Specify columns to exclude in the following format:
+                        schema1.table1=col1,col2,colN;schemaN.tableN=colN;...
+                        (default: None)
+  --row-count-max-ratio ROW_COUNT_MAX_RATIO
+                        If table row count ratio is less than this value,
+                        columns for this table are excluded from display.
+                        (default: 50)
   --display-row-count-max-ratio-columns
                         In separate section, display columns containing high
                         values compared to maximum for the column datatype,
-                        but number of rows is less than the value of --row-
-                        count-max-ratio.
-  --results-port=RESULTS_PORT
-                        Results database port.
-  -T THREADS, --threads=THREADS
-                        Number of threads to spawn
-  -u USER, --user=USER  Database user
-  -p PASSWORD, --password=PASSWORD
-                        Database password
-  -e EXCLUDE_COLUMNS, --exclude-columns=EXCLUDE_COLUMNS
-                        Specify columns to exclude in the following format:
-                        schema1.table1=col1,col2,colN;schemaN.tableN=colN;...
-  -i IGNORE_DBS, --ignore-dbs=IGNORE_DBS
-                        A comma-separated list of db names to be ignored
-  -C CONFIG, --config=CONFIG
-                        Configuration filename
-  -v, --verbose
-  -H HOSTNAME, --hostname=HOSTNAME
-  -w WARNING, --warning=WARNING
-  -c CRITICAL, --critical=CRITICAL
-  -t TIMEOUT, --timeout=TIMEOUT
-  -h, --help            show this help message and exit
-
-
+                        but row count ratio is less than the value of --row-
+                        count-max-ratio. (default: False)
+  --results-host RESULTS_HOST
+                        Results database hostname. (default: None)
+  --results-database RESULTS_DATABASE
+                        Results database name. (default: None)
+  --results-user RESULTS_USER
+                        Results database username. (default: None)
+  --results-password RESULTS_PASSWORD
+                        Results database password. (default: None)
+  --results-port RESULTS_PORT
+                        Results database port. (default: None)
+  --scan-all-columns    All columns are searched. (default: False)
+  --secondary-keys      Secondary keys are also searched. (default: False)
+  -w WARNING, --warning WARNING
+                        Warning threshold. (default: 100.0)
+  -c CRITICAL, --critical CRITICAL
+                        Critical threshold. (default: 100.0)
+  -L LOGGING_CONFIG, --logging-config LOGGING_CONFIG
+                        Logging configuration file. (default: None)
 ```
 
   *When not in use, the Warning and Critical parameters are set to 100.*
@@ -204,36 +226,38 @@ Logging
 -------
 
 Logging can be configured only via configuration file.
-To quickly enable logging, add the following in your configuration file:
+To quickly enable logging, add the following in your configuration file and
+pass the name of the configuration file via -L option:
 ```
-logging:
-    version: 1
-    disable_existing_loggers: False
-    formatters:
-        simple:
-            format: '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
-        console:
-            format: '[%(asctime)s] %(message)s'
-    handlers:
-        console:
-            level: 'INFO'
-            formatter: console
-            class: logging.StreamHandler
-        new_file:
-            formatter: simple
-            level: DEBUG
-            class: logging.FileHandler
-            filename: debug.log
-            mode: w
-            encoding: utf_8
-            delay: True
-    loggers:
-        __main__:
-            handlers: [new_file]
-        pdb_check_maxvalue:
-            handlers: [new_file]
+[loggers]
+keys=root,__main__
+
+[handlers]
+keys=new_file
+
+[formatters]
+keys=simple
+
+[formatter_simple]
+format=[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s
+
+[handler_new_file]
+formatter=simple
+level=DEBUG
+class=FileHandler
+args=('debug.log', 'w', 'utf_8')
+
+[logger_root]
+level=NOTSET
+handlers=new_file
+
+[logger___main__]
+level=DEBUG
+handlers=new_file
+propagate=0
+qualname=__main__
 ```
 
 There are many combinations of formatters and handlers.
-If you need to customize the settings further, the following link will help you understand the details about the configuration dictionary schema:
-http://docs.python.org/2/library/logging.config.html#logging-config-dictschema
+If you need to customize the settings further, the following link will help you understand the details about the configuration file format:
+http://docs.python.org/release/2.4.4/lib/logging-config-fileformat.html
