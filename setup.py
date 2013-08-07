@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 setup(
     name='int-overflow-check',
     version='0.1a.dev',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     install_requires=[
         'MySQL-python',
         'argparse',
