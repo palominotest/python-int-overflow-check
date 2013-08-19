@@ -1,0 +1,4 @@
+include COPYING
+include README.txt
+include docs/*
+recursive-include int_overflow_check *.py
