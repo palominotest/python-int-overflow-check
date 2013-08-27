@@ -5,3 +5,8 @@
 *.log
 dev.*
 .idea
+
+# Binary distribution
+build/*
+dist/*
+deb_dist/*
