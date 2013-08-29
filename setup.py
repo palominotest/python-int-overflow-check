@@ -8,7 +8,7 @@ setup(
     name='int-overflow-check',
     version='0.1b.dev',
     author='Elmer Medez',
-    autor_email='oss@palominodb.com',
+    author_email='oss@palominodb.com',
     packages=find_packages(exclude=['tests']),
     data_files=[('.',['docs/*'])],
     url="http://pypi.python.org/pypi/int-overflow-check",
