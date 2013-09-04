@@ -268,6 +268,7 @@ http://docs.python.org/release/2.4.4/lib/logging-config-fileformat.html
 Building and Installing Packages
 --------------------------------
 
+
 ### Building RPM package on CentOS 5 using the default Python version
 
 Add EPEL repo first:
@@ -280,31 +281,15 @@ Add EPEL repo first:
 Install required packages:
 ```
 # yum groupinstall "Development Tools"
-# yum install ruby ruby-devel rubygems
-# yum install python-simplejson
 ```
 
-A bunch of things are broken in Ruby 1.8.5, which is what CentOS 5 ships with. So, to get things working, we upgrade to 1.8.7, which is the latest in the 1.8 branch.
+Use the package-centos5 branch to build package. It is recommended to build RPM packages using non-root user to avoid unwanted changes to the system.
 ```
-# wget ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p374.tar.gz
-# tar zxf ruby-1.8.7-p374.tar.gz
-# cd ruby-1.8.7-p374
-# ./configure --prefix=/usr --libdir=/usr/lib64 --without-X11
-# make
-# make install
-# cd ../
+$ git checkout package-centos5
+$ python setup.py bdist_rpm
+```
+An RPM package will be created in dist directory.
 
-# wget http://production.cf.rubygems.org/rubygems/rubygems-1.8.24.tgz
-# tar zxf rubygems-1.8.24.tgz
-# cd rubygems-1.8.24
-# ruby setup.rb
-```
-
-Install fpm and build package, assuming source directory is on ./python-int-overflow-check:
-```
-# gem install -V fpm
-# fpm -s python -t rpm -a all --no-python-dependencies --no-python-fix-dependencies --no-python-downcase-dependencies -d gcc -d python-devel -d mysql -d mysql-devel -d python-setuptools -d MySQL-python -d python-argparse python-int-overflow-check/setup.py
-```
 
 ### Installing package on CentOS 5
 
@@ -317,7 +302,7 @@ Add EPEL repo first, it is needed for resolving dependencies:
 
 Install package:
 ```
-# yum --nogpgcheck localinstall <filename.rpm>
+# yum --nogpgcheck localinstall <package.rpm>
 ```
 
 At this point the following executable script is now ready to be used:
@@ -337,15 +322,15 @@ Add EPEL repo first:
 Install required packages:
 ```
 # yum groupinstall "Development Tools"
-# yum install ruby ruby-devel rubygems
-# yum install python-simplejson
 ```
 
-Install fpm and build package, assuming source directory is on ./python-int-overflow-check:
+Use the package-centos6 branch to build package. It is recommended to build RPM packages using non-root user to avoid unwanted changes to the system.
 ```
-# gem install -V fpm
-# fpm -s python -t rpm -a all --no-python-dependencies --no-python-fix-dependencies --no-python-downcase-dependencies -d gcc -d python-devel -d mysql -d mysql-devel -d python-setuptools -d MySQL-python -d python-argparse python-int-overflow-check/setup.py
+$ git checkout package-centos6
+$ python setup.py bdist_rpm
 ```
+An RPM package will be created in dist directory.
+
 
 ### Installing package on CentOS 6
 
@@ -358,7 +343,7 @@ Add EPEL repo first, it is needed for resolving dependencies:
 
 Install package:
 ```
-# yum --nogpgcheck localinstall <filename.rpm>
+# yum --nogpgcheck localinstall <package.rpm>
 ```
 
 ### Installing package on Amazon Linux 2013.03.1
@@ -366,22 +351,25 @@ Install package:
 The package built for CentOS 6 - Python 2.6 should be compatible with any OS that have RPM-based package manager and Python 2.6.
 To install:
 ```
-$ sudo yum --nogpgcheck localinstall <filename.rpm>
+$ sudo yum --nogpgcheck localinstall <package.rpm>
 ```
 
 ### Building DEB package on Ubuntu 12.04.2 LTS using the default Python version
 
 Install required packages:
 ```
-$ sudo apt-get update
-$ sudo apt-get install python-dev mysql-client libmysqlclient-dev python-setuptools python-mysqldb ruby rubygems
+$ sudo apt-get install apt-file
+$ sudo apt-file update
+$ sudo apt-get install python-stdeb
+$ sudo apt-get install python-support
 ```
 
-Install fpm and build package, assuming source directory is on ./python-int-overflow-check:
+Build package.
 ```
-$ sudo gem install -V fpm
-$ fpm -s python -t deb -a all --no-python-dependencies --no-python-fix-dependencies --no-python-downcase-dependencies -d python-dev -d mysql-client -d libmysqlclient-dev -d python-setuptools -d python-mysqldb -x "*/tests" python-int-overflow-check/setup.py
+python setup.py --command-packages=stdeb.command bdist_deb
 ```
+A DEB package will be created in deb_dist directory.
+
 
 ### Installing package on Ubuntu 12.04.2
 
@@ -389,7 +377,7 @@ Install using gdebi since it is capable of resolving dependencies:
 ```
 $ sudo apt-get update
 $ sudo apt-get install gdebi-core
-$ sudo gdebi <filename.deb>
+$ sudo gdebi <package.deb>
 ```
 
 
