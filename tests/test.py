@@ -17,7 +17,7 @@ class PdbCheckMaxValueTest(unittest.TestCase):
         self.main = main
         
         # Connect to MySQL, Make sure that the default MySQL user has CREATE grant
-        self.db = MySQLdb.connect()
+        self.db = MySQLdb.connect(read_default_file="~/.my.cnf")
         cursor = self.db.cursor()
         
         # Create Test Database
