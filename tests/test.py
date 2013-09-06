@@ -44,6 +44,7 @@ class PdbCheckMaxValueTest(unittest.TestCase):
     def test_check_max_value_ok(self):
         exit_code = self.main(
             shlex.split(
+                '-u root '
                 '-d pdbmaxcheck_test '
                 '--row-count-max-ratio 0 '
                 '--display-row-count-max-ratio-columns'))
@@ -52,6 +53,7 @@ class PdbCheckMaxValueTest(unittest.TestCase):
     def test_check_max_value_warning(self):
         exit_code = self.main(
             shlex.split(
+                '-u root '
                 '-d pdbmaxcheck_test --warning 25 --critical 100 '
                 '--row-count-max-ratio 0 '
                 '--display-row-count-max-ratio-columns'))
@@ -60,6 +62,7 @@ class PdbCheckMaxValueTest(unittest.TestCase):
     def test_check_max_value_critical(self):
         exit_code = self.main(
             shlex.split(
+                '-u root ' 
                 '-d pdbmaxcheck_test --warning 20 --critical 25 '
                 '--row-count-max-ratio 0 '
                 '--display-row-count-max-ratio-columns'))
