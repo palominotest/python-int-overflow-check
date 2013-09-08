@@ -29,7 +29,6 @@
     - name: Configure instance(s)
       hosts: launched
       sudo: True
-      gather_facts: True
       roles:
         - package_builder
 
