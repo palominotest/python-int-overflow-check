@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   connection: local
-  vars_file:
+  vars_files:
     - ~/.python-int-overflow-check/external_vars.yml
   tasks:
     - name: Launch instance
