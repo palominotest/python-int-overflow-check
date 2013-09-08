@@ -1,0 +1,46 @@
+---
+
+##############################################################################
+# Bootstrap
+##############################################################################
+- name: Create dirs
+  shell: mkdir -p ~/.ansible &&
+         mkdir -p ~/python-int-overflow-check
+  ignore_errors: yes
+
+- name: Install required package(s)
+  yum: pkg=$item state=installed
+  with_items:
+    - wget
+  when: ansible_distribution == "CentOS"
+
+- name: Setup EPEL repository
+  shell: cd /tmp &&
+         wget -N http://dl.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-8.noarch.rpm &&
+         rpm -Uvh epel-release-6-8.noarch.rpm &&
+         touch ~/.ansible/centos6-setup-epel-repo-done
+         creates=~/.ansible/centos6-setup-epel-repo-done
+  ignore_errors: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_version|float >= 6.0
+
+- name: Install required package(s)
+  shell: yum -y groupinstall "Development tools"
+  when: ansible_distribution == "CentOS"
+
+- name: Install required package(s)
+  yum: pkkg=$item state=installed
+  with_items:
+    python-pip
+    mysql-devel
+    rsync
+  when: ansible_distribution == "CentOS"
+
+- name: Copy source files
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Copy source files
+      local_action:
+        shell: cd $WORKSPACE &&
+               rsync -vaz ./ root@{{ item.public_dns_name }}:~/python-intoverflow-check/
+      with_items: ec2.instances
