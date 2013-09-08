@@ -36,11 +36,6 @@
   when: ansible_distribution == "CentOS"
 
 - name: Copy source files
-  hosts: localhost
-  connection: local
-  tasks:
-    - name: Copy source files
-      local_action:
-        shell: cd $WORKSPACE &&
-               rsync -vaz ./ root@{{ item.public_dns_name }}:~/python-intoverflow-check/
-      with_items: ec2.instances
+  local_action:
+    shell: cd $WORKSPACE &&
+           rsync -vaz ./ root@{{ inventory_hostname }}:~/python-intoverflow-check/
