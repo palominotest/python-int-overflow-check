@@ -5,17 +5,16 @@
     - ~/.python-int-overflow-check/external_vars.yml
   tasks:
     - name: Launch instance
-      local_action:
-        module: ec2
-        aws_access_key: $aws_access_key
-        aws_secret_key: $aws_secret_key
-        keypair: $aws_keypair
-        region: $aws_region
-        image: $aws_image
-        instance_type: $aws_instance_type
-        group: $aws_security_groups
-        count: 1
-        wait: yes
+      local_action: ec2
+                    aws_access_key=$aws_access_key
+                    aws_secret_key=$aws_secret_key
+                    keypair=$aws_keypair
+                    region=$aws_region
+                    image=$aws_image
+                    instance_type=$aws_instance_type
+                    group=aws_security_groups
+                    count=1
+                    wait=yes
       register: ec2
 
     - name: Add new instance to host group

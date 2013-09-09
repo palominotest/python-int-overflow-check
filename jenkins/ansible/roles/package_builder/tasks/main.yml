@@ -36,7 +36,6 @@
   when: ansible_distribution == "CentOS"
 
 - name: Copy source files
-  local_action:
-    module: shell
-      cd $WORKSPACE &&
-      rsync -vaz ./ root@{{ inventory_hostname }}:~/python-intoverflow-check/
+  local_action: shell
+                cd $WORKSPACE &&
+                rsync -vaz ./ root@{{ inventory_hostname }}:~/python-intoverflow-check/
