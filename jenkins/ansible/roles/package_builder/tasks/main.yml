@@ -37,5 +37,6 @@
 
 - name: Copy source files
   local_action:
-    shell: cd $WORKSPACE &&
-           rsync -vaz ./ root@{{ inventory_hostname }}:~/python-intoverflow-check/
+    module: shell
+      cd $WORKSPACE &&
+      rsync -vaz ./ root@{{ inventory_hostname }}:~/python-intoverflow-check/
