@@ -13,8 +13,8 @@
                     group={{ aws_security_groups }}
                     count=1
                     wait=yes
-                    aws_access_key={{ aws_access_key }}
-                    aws_secret_key={{ aws_secret_key }}
+                    access_key={{ aws_access_key }}
+                    secret_key={{ aws_secret_key }}
       register: ec2
 
     - name: Add new instance to host group
