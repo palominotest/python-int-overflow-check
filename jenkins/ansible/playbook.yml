@@ -10,7 +10,7 @@
 
     - name: Launch instance
       ec2:
-        keypair={{ aws_keypair }}
+        key_name={{ aws_keypair }}
         region={{ aws_region }}
         image={{ aws_image }}
         instance_type={{ aws_instance_type }}
