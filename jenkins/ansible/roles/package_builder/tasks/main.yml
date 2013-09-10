@@ -30,9 +30,9 @@
 - name: Install required package(s)
   yum: pkkg=$item state=installed
   with_items:
-    python-pip
-    mysql-devel
-    rsync
+    - python-pip
+    - mysql-devel
+    - rsync
   when: ansible_distribution == "CentOS"
 
 #- name: Copy source files
